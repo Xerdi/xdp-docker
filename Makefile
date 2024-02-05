@@ -1,12 +1,11 @@
 PROFILE = texlive.profile
 
-.PHONY: build
 
-build_base: Dockerfile.texlive profiles/texlive.profile
+build_base: Dockerfile.texlive texlive/profiles
 	@docker build -f Dockerfile.texlive -t maclotsen/xdp-base:slim .
 	notify-send 'Makefile' 'Docker finished building Base Slim' || true
 
-build_base_full: Dockerfile.texlive profiles/texlive-full.profile
+build_base_full: Dockerfile.texlive texlive/profiles
 	@docker build -f Dockerfile.texlive --build-arg profile=texlive-full.profile -t maclotsen/xdp-base:full .
 	notify-send 'Makefile' 'Docker finished building Base Full' || true
 
