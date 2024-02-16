@@ -1,5 +1,8 @@
 PROFILE = texlive.profile
 
+texlive: Dockerfile.texlive misc/texlive.profile
+	@docker build --build-arg profile=$(PROFILE) \
+			-t maclotsen/texlive:latest .
 
 build_base: Dockerfile.texlive texlive/profiles
 	@docker build -f Dockerfile.texlive -t maclotsen/xdp-base:slim .
@@ -9,11 +12,11 @@ build_base_full: Dockerfile.texlive texlive/profiles
 	@docker build -f Dockerfile.texlive --build-arg profile=texlive-full.profile -t maclotsen/xdp-base:full .
 	notify-send 'Makefile' 'Docker finished building Base Full' || true
 
-build: build_base Dockerfile
+build: build_base Dockerfile.ltxuser
 	@docker build -t maclotsen/xdp:slim .
 	notify-send 'Makefile' 'Docker finished building XDP Slim' || true
 
-build_full: build_base_full Dockerfile
+build_full: build_base_full Dockerfile.ltxuser
 	@docker build --build-arg tag=full -t maclotsen/xdp:full .
 	notify-send 'Makefile' 'Docker finished building XDP Full' || true
 

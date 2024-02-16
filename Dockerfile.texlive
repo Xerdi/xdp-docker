@@ -2,69 +2,53 @@ FROM ubuntu:22.04
 MAINTAINER Erik Nijenhuis <info@xerdi.com>
 ARG profile=texlive.profile
 
-ENV TEXLIVE_INSTALL_ENV_NOCHECK true
-ENV DEBIAN_FRONTEND noninteractive
-ENV LUA_PATH='/usr/local/share/lua/5.3/?.lua;/usr/local/share/lua/5.3/?/init.lua;/usr/local/lib/lua/5.3/?.lua;/usr/local/lib/lua/5.3/?/init.lua;/usr/share/lua/5.3/?.lua;/usr/share/lua/5.3/?/init.lua;./?.lua;./?/init.lua;/home/ltxuser/.luarocks/share/lua/5.3/?.lua;/home/ltxuser/.luarocks/share/lua/5.3/?/init.lua'
-ENV LUA_CPATH='/usr/local/lib/lua/5.3/?.so;/usr/lib/x86_64-linux-gnu/lua/5.3/?.so;/usr/lib/lua/5.3/?.so;/usr/local/lib/lua/5.3/loadall.so;./?.so;/home/ltxuser/.luarocks/lib/lua/5.3/?.so'
+ENV HOME=/root
+ENV YEAR 2024
+ENV TEXLIVE_INSTALL_ENV_NOCHECK 1
+ENV TEXLIVE_INSTALL_NO_RESUME 1
+ENV TEXLIVE_INSTALL_NO_WELCOME 1
 
 # Install core packages
 RUN apt update -q && \
-    apt install -qy build-essential git curl wget perl-base \
-        lua5.3 liblua5.3-dev lua-yaml luarocks \
-        libfontconfig1 fontconfig
-
-# Install Lua module lyaml
-RUN luarocks install lyaml
+    apt install -qy build-essential git curl wget perl-base libfontconfig1 fontconfig && \
+    rm -rf /var/lib/apt/lists/*
 
 # Prepare installation directory
 RUN mkdir -p /texlive-setup/install-tl
 WORKDIR /texlive-setup
-COPY texlive/profiles/$profile texlive.profile
 
 # Download TeX Live
 RUN wget http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz;
 
 # Install TeX Live
+RUN tar -xvf install-tl-unx.tar.gz -C ./install-tl --strip-components=1;
+COPY misc/$profile /texlive-setup/texlive.profile
 WORKDIR /texlive-setup/install-tl
-RUN tar -xvf ../install-tl-unx.tar.gz -C . --strip-components=1; \
-    ./install-tl --profile=../texlive.profile
+RUN ./install-tl --profile=/texlive-setup/texlive.profile
 
 # Cleanup
 RUN rm -rf /texlive-setup
 
 RUN tlmgr update --all;
 
-# Download and Install Google Fonts
-RUN mkdir -p /usr/share/fonts/google-fonts
-WORKDIR /usr/share/fonts/google-fonts
-RUN wget https://github.com/google/fonts/archive/main.zip
+WORKDIR /root
 
-RUN unzip -d . main.zip; \
-    find $PWD/fonts-main/ -iname "*.ttf" -exec install -m644 {} /usr/share/fonts/truetype/google-fonts \; || return 1; \
-    find $PWD/fonts-main/ -type f \( -iname \*.otf -o -iname \*.otc \) -exec install -m644 {} /usr/share/fonts/opentype/google-fonts \; || return 1; \
-    fc-cache -fv
-
-# Create User
-RUN useradd -ms /bin/bash ltxuser
-WORKDIR /home/ltxuser
-
-# Set permissions
+# Set permissions & Initialize TeX Live
 RUN chmod a+rx -R .; \
-    mkdir -p texmf .texlive2023/texmf-var; \
-    chmod a+rwx -R .texlive2023/texmf-var;
+    tlmgr init-usertree; \
+    texhash /root/texmf
 
-# Initialize TeX Live
-RUN tlmgr init-usertree; \
-    texhash /home/ltxuser/texmf
 
-USER ltxuser
+# Load the font db
+RUN luaotfload-tool --update;
 
-RUN luaotfload-tool --update --force;
+RUN chmod a+rwx -R $(kpsewhich --var-value TEXMFSYSVAR)
+
+# Add the build directory for compilation
+RUN git config --global --add safe.directory /build
 
 # Add an optional TDS as mount
-VOLUME /home/ltxuser/texmf
-
-# Setup build directory
-RUN git config --global --add safe.directory /build
-WORKDIR /build
+VOLUME /root/texmf
 VOLUME /build
+
+WORKDIR /build
