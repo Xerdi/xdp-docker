@@ -31,7 +31,7 @@ Therefore, it’s wise to alias this command, so you’d end up with something l
 
 ```bash
 #!/bin/bash
-IMAGE=maclotsen/xdp:slim
+IMAGE=maclotsen/texlive:with-gf
 
 exec docker run --rm -i \
   --user="$(id -u):$(id -g)" \
