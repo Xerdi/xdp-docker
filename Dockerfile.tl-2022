@@ -18,13 +18,13 @@ RUN mkdir -p /texlive-setup/install-tl
 WORKDIR /texlive-setup
 
 # Download TeX Live
-RUN wget https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz;
+RUN wget https://ftp.tu-chemnitz.de/pub/tug/historic/systems/texlive/2022/tlnet-final/install-tl-unx.tar.gz
 
 # Install TeX Live
 RUN tar -xvf install-tl-unx.tar.gz -C ./install-tl --strip-components=1;
 COPY misc/$profile /texlive-setup/texlive.profile
 WORKDIR /texlive-setup/install-tl
-RUN ./install-tl --profile=/texlive-setup/texlive.profile
+RUN ./install-tl --profile=/texlive-setup/texlive.profile -repository=https://ftp.tu-chemnitz.de/pub/tug/historic/systems/texlive/2022/tlnet-final
 
 # Cleanup
 RUN rm -rf /texlive-setup
@@ -33,16 +33,35 @@ RUN tlmgr update --all;
 
 WORKDIR /root
 
-# Set permissions & Initialize TeX Live
-RUN chmod a+rx -R .; \
-    tlmgr init-usertree; \
-    texhash /root/texmf
+# Download fonts
+RUN mkdir -p /google-fonts
+WORKDIR /google-fonts
+RUN wget https://github.com/google/fonts/archive/main.tar.gz
 
+# Install fonts
+RUN tar -xzvf main.tar.gz;
+RUN mv fonts-main /usr/share/fonts/
+RUN rm -r /google-fonts
+RUN fc-cache -fv
 
 # Load the font db
 RUN luaotfload-tool --update;
 
 RUN chmod a+rwx -R $(kpsewhich --var-value TEXMFSYSVAR)
+
+# Set permissions & Initialize TeX Live
+RUN chmod a+rx -R .; \
+    tlmgr init-usertree; \
+    texhash /root/texmf
+
+# Install XDP packages
+RUN mkdir /xdp
+WORKDIR /xdp
+RUN wget https://github.com/Xerdi/lua-placeholders/archive/refs/tags/1.0.2.tar.gz; \
+    tar xf 1.0.2.tar.gz --directory=. --strip-components=1; \
+    wget https://mirrors.ctan.org/macros/luatex/generic/lua-tinyyaml/tinyyaml.lua; \
+    mv ./tinyyaml.lua scripts/
+RUN tlmgr conf auxtrees add /xdp
 
 # Add the build directory for compilation
 RUN git config --global --add safe.directory /build

@@ -8,6 +8,11 @@ with_gf: texlive Dockerfile.google-fonts
 	@docker build -f Dockerfile.google-fonts -t maclotsen/texlive:with-gf .
 	notify-send 'Makefile' 'Docker finished building Google Fonts' || true
 
-publish: texlive with_gf
+tl_2022:
+	@docker build -f Dockerfile.tl-2022 -t maclotsen/texlive:2022 .
+	notify-send 'Makefile' 'Docker finished building TL 2022' || true
+
+publish: texlive with_gf tl_2022
 	@docker push maclotsen/texlive:latest
 	@docker push maclotsen/texlive:with-gf
+	@docker push maclotsen/texlive:2022
