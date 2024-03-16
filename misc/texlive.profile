@@ -12,5 +12,12 @@ collection-metapost 1
 collection-mathscience 1
 collection-pictures 1
 collection-plaingeneric 1
+collection-langarabic 1
+collection-langenglish 1
 collection-langeuropean 1
+collection-langfrench 1
+collection-langgerman 1
+collection-langitalian 1
+collection-langportuguese 1
+collection-langspanish 1
 instopt_adjustpath 1
