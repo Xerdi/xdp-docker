@@ -30,6 +30,8 @@ RUN rm -rf /texlive-setup
 
 RUN tlmgr update --all;
 
+COPY misc/texmf.cnf /usr/local/texlive/2024/
+
 WORKDIR /root
 
 # Set permissions & Initialize TeX Live

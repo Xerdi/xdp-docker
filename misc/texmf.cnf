@@ -1,0 +1,25 @@
+PKGHOME = /build
+
+TEXINPUTS = $TEXMFDOTDIR;$PKGHOME//tex//;$TEXMF/tex/{$progname,generic,latex,}//
+LUAINPUTS = $TEXMFDOTDIR;$PKGHOME//scripts//;$TEXMF/scripts/{$progname,$engine,}/{lua,}//;$TEXMF/tex/{luatex,plain,generic,latex,}//
+
+
+TEXINPUTS.tex = $TEXMFDOTDIR;$PKGHOME//tex;$TEXMF/tex/{plain,generic,latex,}//
+TEXINPUTS.luatex = $TEXMFDOTDIR;$PKGHOME//tex/;$TEXMF/tex/{lualatex,latex,luatex,generic,}//
+TEXINPUTS.lualatex = $TEXMFDOTDIR;$PKGHOME//tex/;$TEXMF/tex/{lualatex,latex,luatex,generic,}//
+TEXINPUTS.luahblatex = $TEXMFDOTDIR;$PKGHOME//tex/;$TEXMF/tex/{lualatex,latex,luatex,generic,}//
+
+shell_escape.luatex = p
+
+shell_escape_commands = \
+bibtex,bibtex8,bib2gls,\
+extractbb,\
+gregorio,\
+kpsewhich,\
+makeindex,\
+memoize-extract.pl,\
+memoize-extract.py,\
+repstopdf,\
+r-mpost,\
+texosquery-jre8,\
+git,\
