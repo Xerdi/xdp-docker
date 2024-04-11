@@ -9,7 +9,7 @@ ENV TEXLIVE_INSTALL_NO_WELCOME 1
 
 # Install core packages
 RUN apt update -q && \
-    apt install -qy build-essential git curl wget zip perl-base libfontconfig1 fontconfig openjdk-8-jre && \
+    apt install -qy build-essential git curl wget zip perl-base libfontconfig1 fontconfig openjdk-8-jre fonts-liberation fonts-liberation2 && \
     rm -rf /var/lib/apt/lists/*
 
 # Prepare installation directory
