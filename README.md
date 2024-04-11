@@ -40,3 +40,24 @@ exec docker run --rm -i \
   "$IMAGE" "$@"
 ```
 *~/bin/xdpdocker*
+
+## Notes on TDS
+The image uses an alternated configuration of TEXMF.
+The main difference is that it also allows a thinner TDS variant, which is more aligned with CTANs upload directory structure.
+
+Here's an example of `gitinfo-lua`s structure, which is compatible with the PKG_HOME structure (see [misc/texmf.cnf](misc/texmf.cnf)):
+```
+gitinfo-lua
+├── doc
+│   ├── gitinfo-lua.pdf
+│   ├── gitinfo-lua.tex
+├── scripts
+│   ├── gitinfo-lua.lua
+│   ├── gitinfo-lua-cmd.lua
+│   └── gitinfo-lua-recorder.lua
+└── tex
+    └── gitinfo-lua.sty
+```
+The main difference of this approach is that Lua files don't have to be placed in under `scripts/lua`, but can directly be placed under `scripts` instead.
+This also counts for TeX files. For example, `gitinfo-lua.sty` won't have to be placed in either one of the following subdirectories: `luahblatex`, `luahbtex`, `lualatex`, `latex`, `luatex` or `generic`.
+The TDS approach is cumbersome for package developers that like to test their software against alternative compilers, where PKG_HOME does not.
