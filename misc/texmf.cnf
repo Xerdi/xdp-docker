@@ -32,3 +32,6 @@ repstopdf,\
 r-mpost,\
 texosquery-jre8,\
 git,
+lilypond,\
+gs,\
+
