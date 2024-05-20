@@ -3,16 +3,17 @@
 ![CTAN Version](https://img.shields.io/ctan/v/gitinfo-lua?label=ctan%2Fgitinfo-lua)
 ![CTAN Version](https://img.shields.io/ctan/v/lua-placeholders?label=ctan%2Flua-placeholders)
 
-Using Ubuntu 22.04 as operating system having a TeX Live distribution along with some other useful tools, which are required for Xerdi's Documentation Project (XDP).
+Using Ubuntu 22.04 as operating system having a TeX Live distribution along with some other useful tools, which are required for some LaTeX packages.
 
-Included LaTeX packages are:
+This Docker image is being used by the following packages:
 - `gitinfo-lua` ([GitHub](https://github.com/Xerdi/gitinfo-lua)|[CTAN](https://ctan.org/pkg/gitinfo-lua))
 - `lua-placeholders` ([GitHub](https://github.com/Xerdi/lua-placeholders)|[CTAN](https://ctan.org/pkg/lua-placeholders))
 - `regulatory` ([GitHub](https://github.com/Xerdi/regulatory)|[CTAN](https://ctan.org/pkg/regulatory))
+- `fmtcount` ([GitHub](https://github.com/Xerdi/fmtcount)|[CTAN](https://ctan.org/pkg/fmtcount))
 
 ## Prerequisites
-In order to use one of the Docker images, Docker needs to be installed.
-Check the [installation instructions](https://docs.docker.com/engine/install/) in order to install Docker.
+To use one of the Docker images, Docker needs to be installed.
+Check the [installation instructions](https://docs.docker.com/engine/install/) to install Docker.
 Once you run Docker with an image specified, the image will get downloaded.
 
 ## Usage
