@@ -4,6 +4,7 @@ collection-binextra 1
 collection-bibtexextra 1
 collection-fontsrecommended 1
 collection-fontsextra 1
+collection-fontutils 1
 collection-latex 1
 collection-latexrecommended 1
 collection-latexextra 1
