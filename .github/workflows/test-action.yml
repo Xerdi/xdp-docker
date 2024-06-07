@@ -34,7 +34,11 @@ jobs:
         with:
           path: xdp-docker
       - name: Debug
-        run: ls -la xdp-docker
+        run: |
+          echo Contents
+          ls -la xdp-docker
+          echo PWD
+          pwd
       - name: Run the build process with Custom Docker Action
         uses: ./action.yml
         with:
