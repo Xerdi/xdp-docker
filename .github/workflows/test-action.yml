@@ -43,4 +43,6 @@ jobs:
       - name: Run the build process with Custom Docker Action
         uses: ./
         with:
-          command: "make -C gitinfo-lua manual"
+          command: |
+            git config --global --add safe.directory /github/workspace/gitinfo-lua
+            make -C gitinfo-lua package
