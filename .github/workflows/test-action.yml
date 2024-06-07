@@ -31,12 +31,12 @@ jobs:
           path: texmf
       - name: Check out this repository
         uses: actions/checkout@v4
-        with:
-          path: xdp-docker
+#        with:
+#          path: xdp-docker
       - name: Debug
         run: |
           echo Contents
-          ls -la xdp-docker
+          ls -la
           echo PWD
           pwd
       - name: Run the build process with Custom Docker Action
