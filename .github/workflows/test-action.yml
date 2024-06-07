@@ -41,7 +41,6 @@ jobs:
           echo PWD
           pwd
       - name: Run the build process with Custom Docker Action
-        working-directory: ${{ github.workspace }}
-        uses: ./action.yml
+        uses: .
         with:
           command: "make -C gitinfo-lua manual"
