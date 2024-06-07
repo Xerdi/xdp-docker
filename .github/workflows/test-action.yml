@@ -41,6 +41,6 @@ jobs:
           echo PWD
           pwd
       - name: Run the build process with Custom Docker Action
-        uses: .
+        uses: ./
         with:
           command: "make -C gitinfo-lua manual"
