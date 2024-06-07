@@ -1,4 +1,3 @@
-
 TEXMFDOTDIR = .;/build//
 
 shell_escape.luatex = p
