@@ -33,6 +33,8 @@ jobs:
         with:
           repository: Xerdi/texmf-packaging
           path: texmf
+      - name: Goto workspace root
+        run: cd ${{ github.workspace }}
       - name: Run the build process with Custom Docker Action
         uses: ./action.yml
         with:
