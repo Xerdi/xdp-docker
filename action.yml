@@ -1,0 +1,17 @@
+name: "TeX Live Docker Action"
+description: "An action that uses TeX Live Docker image for LaTeX document compilation"
+author: "Erik Nijenhuis"
+inputs:
+  command:
+    description: "The command to execute in the Docker container"
+    required: true
+outputs:
+  pdf:
+    description: "The compiled PDF document"
+runs:
+  using: "docker"
+  image: "maclotsen/texlive:with-gf"
+  entrypoint: sh ${{ inputs.command }}
+branding:
+  icon: "printer"
+  color: "blue"

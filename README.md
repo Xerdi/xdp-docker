@@ -45,7 +45,13 @@ exec docker run --rm -i \
 
 ## Notes on TDS
 The image uses an alternated configuration of TEXMFDOTDIR.
-The main difference is that it also allows a thinner TDS variant, which is more aligned with CTANs upload directory structure.
+The main difference is that it also allows a thinner TDS variant, which follows the single layered projects' directory structure (see [XDP Packaging Guidelines](https://github.com/Xerdi/texmf-packaging)).
+
+The definition of TEXMFDOTDIR for this Docker image is:
+```
+TEXMFDOTDIR = .;/build//
+```
+and could also be achieved on your local development environment by replacing `/build` with a directory containing all your LaTeX related repositories.
 
 Here's an example of `gitinfo-lua`s structure, which is compatible with the TEXMFDOTDIR structure (see [misc/texmf.cnf](misc/texmf.cnf)):
 ```

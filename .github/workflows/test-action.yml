@@ -1,0 +1,33 @@
+name: Build LaTeX Document
+
+on:
+  push:
+    branches:
+      - '*'
+    paths:
+      - action.yml
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - action.yml
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+        with:
+          repository: Xerdi/gitinfo-lua
+          path: gitinfo-lua
+          fetch-tags: true
+          fetch-depth: 0
+      - name: Check out texmf
+        uses: actions/checkout@v4
+        with:
+          repository: Xerdi/texmf-packaging
+          path: texmf
+      - name: Run the build process with Custom Docker Action
+        uses: ./action.yml
+        with:
+          command: "make -C gitinfo-lua manual"
