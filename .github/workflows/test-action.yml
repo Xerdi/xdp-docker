@@ -17,10 +17,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out this repository
-        uses: actions/checkout@v4
-        with:
-          path: xdp-docker
       - name: Check out test package
         uses: actions/checkout@v4
         with:
@@ -33,6 +29,10 @@ jobs:
         with:
           repository: Xerdi/texmf-packaging
           path: texmf
+      - name: Check out this repository
+        uses: actions/checkout@v4
+        with:
+          path: xdp-docker
       - name: Run the build process with Custom Docker Action
         uses: ./xdp-docker/action.yml
         with:
