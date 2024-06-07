@@ -1,22 +1,5 @@
-XDP_PACKAGES = {xdp,lua-placeholders,gitinfo-lua,regulatory,}
-PKG_HOME = /build/$XDP_PACKAGES
 
-%TEXDOCS = $PKG_HOME/{doc,};$TEXMF/doc//
-
-%TEXMF = {$TEXMFAUXTREES$TEXMFCONFIG,$TEXMFVAR,$PKG_HOME,$TEXMFHOME,!!$TEXMFLOCAL,!!$TEXMFSYSCONFIG,!!$TEXMFSYSVAR,!!$TEXMFDIST}
-
-TEXINPUTS.tex        = $TEXMFDOTDIR;$PKG_HOME/{tex,}//;$TEXMF/tex/{plain,generic,latex,}//
-TEXINPUTS.luatex     = $TEXMFDOTDIR;$PKG_HOME/{tex,}//;$TEXMF/tex/{lualatex,latex,luatex,generic,}//
-TEXINPUTS.luahbtex   = $TEXMFDOTDIR;$PKG_HOME/{tex,}//;$TEXMF/tex/{lualatex,latex,luatex,generic,}//
-TEXINPUTS.lualatex   = $TEXMFDOTDIR;$PKG_HOME/{tex,}//;$TEXMF/tex/{lualatex,latex,luatex,generic,}//
-TEXINPUTS.luahblatex = $TEXMFDOTDIR;$PKG_HOME/{tex,}//;$TEXMF/tex/{lualatex,latex,luatex,generic,}//
-TEXINPUTS            = $TEXMFDOTDIR;$PKG_HOME/{tex,}//;$TEXMF/tex/{$progname,generic,latex,}//
-
-LUAINPUTS.lualatex        = $TEXMFDOTDIR;$PKG_HOME/{scripts,}//;$TEXMF/scripts/{$progname,$engine,}/{lua,}//;$TEXMF/tex/{lualatex,latex,luatex,generic,}//
-LUAINPUTS.lualatex-dev    = $TEXMFDOTDIR;$PKG_HOME/{scripts,}//;$TEXMF/scripts/{$progname,$engine,}/{lua,}//;$TEXMF/tex/{latex-dev,lualatex,latex,luatex,generic,}//
-LUAINPUTS.luahblatex      = $TEXMFDOTDIR;$PKG_HOME/{scripts,}//;$TEXMF/scripts/{$progname,$engine,}/{lua,}//;$TEXMF/tex/{luahblatex,luahbtex,lualatex,latex,luatex,generic,}//
-LUAINPUTS.luahblatex-dev  = $TEXMFDOTDIR;$PKG_HOME/{scripts,}//;$TEXMF/scripts/{$progname,$engine,}/{lua,}//;$TEXMF/tex/{latex-dev,luahblatex,luahbtex,lualatex,latex,luatex,generic,}//
-LUAINPUTS                 = $TEXMFDOTDIR;$PKG_HOME/{scripts,}//;$TEXMF/scripts/{$progname,$engine,}/{lua,}//;$TEXMF/tex/{luatex,plain,generic,latex,}//
+TEXMFDOTDIR = .;/build//
 
 shell_escape.luatex = p
 

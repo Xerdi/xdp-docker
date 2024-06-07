@@ -10,6 +10,7 @@ This Docker image is being used by the following packages:
 - `lua-placeholders` ([GitHub](https://github.com/Xerdi/lua-placeholders)|[CTAN](https://ctan.org/pkg/lua-placeholders))
 - `regulatory` ([GitHub](https://github.com/Xerdi/regulatory)|[CTAN](https://ctan.org/pkg/regulatory))
 - `fmtcount` ([GitHub](https://github.com/Xerdi/fmtcount)|[CTAN](https://ctan.org/pkg/fmtcount))
+- `luakeys` ([GitHub](https://github.com/Josef-Friedrich/luakeys)|[CTAN](https://ctan.org/pkg/luakeys))
 
 ## Prerequisites
 To use one of the Docker images, Docker needs to be installed.
@@ -43,10 +44,10 @@ exec docker run --rm -i \
 *~/bin/xdpdocker*
 
 ## Notes on TDS
-The image uses an alternated configuration of TEXMF.
+The image uses an alternated configuration of TEXMFDOTDIR.
 The main difference is that it also allows a thinner TDS variant, which is more aligned with CTANs upload directory structure.
 
-Here's an example of `gitinfo-lua`s structure, which is compatible with the PKG_HOME structure (see [misc/texmf.cnf](misc/texmf.cnf)):
+Here's an example of `gitinfo-lua`s structure, which is compatible with the TEXMFDOTDIR structure (see [misc/texmf.cnf](misc/texmf.cnf)):
 ```
 gitinfo-lua
 ├── doc
@@ -61,4 +62,4 @@ gitinfo-lua
 ```
 The main difference of this approach is that Lua files don't have to be placed in under `scripts/lua`, but can directly be placed under `scripts` instead.
 This also counts for TeX files. For example, `gitinfo-lua.sty` won't have to be placed in either one of the following subdirectories: `luahblatex`, `luahbtex`, `lualatex`, `latex`, `luatex` or `generic`.
-The TDS approach is cumbersome for package developers that like to test their software against alternative compilers, where PKG_HOME does not.
+The TDS approach is cumbersome for package developers that like to test their software against alternative compilers, where TEXMFDOTDIR does not.
