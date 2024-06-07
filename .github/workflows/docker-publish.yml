@@ -5,12 +5,9 @@ on:
     branches:
       - master
     paths:
-      - 'Dockerfile.*'
-  pull_request:
-    branches:
-      - master
-    paths:
-      - 'Dockerfile.*'
+      - 'Dockerfile.texlive'
+      - 'Dockerfile.google-fonts'
+      - 'Dockerfile.tl-2022'
 
 jobs:
   build:
