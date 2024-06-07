@@ -34,8 +34,8 @@ jobs:
         with:
           path: xdp-docker
       - name: Debug
-        run: ls -la
+        run: ls -la xdp-docker
       - name: Run the build process with Custom Docker Action
-        uses: ./xdp-docker/action.yml
+        uses: ./action.yml
         with:
           command: "make -C gitinfo-lua manual"
