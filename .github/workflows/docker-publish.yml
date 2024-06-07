@@ -4,9 +4,13 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'Dockerfile.*'
   pull_request:
     branches:
       - master
+    paths:
+      - 'Dockerfile.*'
 
 jobs:
   build:
@@ -26,6 +30,7 @@ jobs:
         password: ${{ secrets.DOCKER_TOKEN }}
 
     - name: Build and push Docker image
+      if: steps.changed-files.outputs.contains == 'Dockerfile.texlive'
       uses: docker/build-push-action@v5
       with:
         context: .
@@ -34,9 +39,34 @@ jobs:
         tags: maclotsen/texlive:latest
 
     - name: Build and push Docker image (with Google Fonts)
+      if: steps.changed-files.outputs.contains == 'Dockerfile.texlive' || steps.changed-files.outputs.contains == 'Dockerfile.google-fonts'
       uses: docker/build-push-action@v5
       with:
         context: .
         file: Dockerfile.google-fonts
         push: true
         tags: maclotsen/texlive:with-gf
+
+    - name: Build and push Docker image (TeX Live 2022)
+      if: steps.changed-files.outputs.contains == 'Dockerfile.tl-2022'
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: Dockerfile.tl-2022
+        push: true
+        tags: maclotsen/texlive:2022
+
+  changed-files:
+    name: Check Changed Files
+    runs-on: ubuntu-latest
+    outputs:
+      contains: ${{ steps.get-diff.outputs.contains }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Get list of changed files
+        id: get-diff
+        run: |
+          echo "::set-output name=contains::$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -E 'Dockerfile.texlive|Dockerfile.google-fonts|Dockerfile.tl-2022' || echo '')"
+          
