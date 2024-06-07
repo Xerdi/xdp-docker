@@ -19,8 +19,8 @@ jobs:
     steps:
       - name: Check out this repository
         uses: actions/checkout@v4
-        with:
-          path: xdp-docker
+#        with:
+#          path: xdp-docker
       - name: Check out test package
         uses: actions/checkout@v4
         with:
@@ -33,9 +33,16 @@ jobs:
         with:
           repository: Xerdi/texmf-packaging
           path: texmf
-      - name: Goto workspace root
-        run: cd ${{ github.workspace }}
+      - name: Debug
+        run: |
+          echo workspace dir ${{ github.workspace }}
+          echo Contents
+          ls -la
+          echo PWD
+          pwd
       - name: Run the build process with Custom Docker Action
-        uses: ./action.yml
+        uses: ./
         with:
-          command: "make -C gitinfo-lua manual"
+          command: |
+            git config --global --add safe.directory /github/workspace/gitinfo-lua
+            make -C gitinfo-lua package
