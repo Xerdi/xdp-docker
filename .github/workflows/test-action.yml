@@ -6,10 +6,12 @@ on:
       - '*'
     paths:
       - action.yml
+      - .github/workflows/test-action.yml
   pull_request:
     types: [opened, synchronize]
     paths:
       - action.yml
+      - .github/workflows/test-action.yml
 
 jobs:
   build:
