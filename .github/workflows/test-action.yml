@@ -33,9 +33,7 @@ jobs:
         with:
           repository: Xerdi/texmf-packaging
           path: texmf
-      - name: Goto workspace root
-        run: cd ${{ github.workspace }}
       - name: Run the build process with Custom Docker Action
-        uses: ./action.yml
+        uses: ${{ github.workspace }}/xdp-docker/action.yml
         with:
           command: "make -C gitinfo-lua manual"
