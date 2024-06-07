@@ -12,7 +12,8 @@ runs:
   using: "docker"
   image: "maclotsen/texlive:with-gf"
   args:
-    - "sh"
+    - "bash"
+    - "-c"
     - "${{ inputs.command }}"
 branding:
   icon: "printer"
