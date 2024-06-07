@@ -11,7 +11,9 @@ outputs:
 runs:
   using: "docker"
   image: "maclotsen/texlive:with-gf"
-  entrypoint: sh ${{ inputs.command }}
+  args:
+    - "sh"
+    - "${{ inputs.command }}"
 branding:
   icon: "printer"
   color: "blue"
