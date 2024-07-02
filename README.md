@@ -43,17 +43,17 @@ exec docker run --rm -i \
 ```
 *~/bin/xdpdocker*
 
-## Notes on TDS
+## Notes on TEXMF
 The image uses an alternated configuration of TEXMFDOTDIR.
-The main difference is that it also allows a thinner TDS variant, which follows the single layered projects' directory structure (see [XDP Packaging Guidelines](https://github.com/Xerdi/texmf-packaging)).
+The main difference is that it also allows a thinner TDS variant, which is suitable for single layered projects' directory structures (see [XDP Packaging Guidelines](https://github.com/Xerdi/texmf-packaging)).
 
 The definition of TEXMFDOTDIR for this Docker image is:
 ```
 TEXMFDOTDIR = .;/build//
 ```
-and could also be achieved on your local development environment by replacing `/build` with a directory containing all your LaTeX related repositories.
+and could also be achieved on your local development environment by replacing `/build` with a directory containing all your LaTeX related repositories i.e. `~/src/latex`.
 
-Here's an example of `gitinfo-lua`s structure, which is compatible with the TEXMFDOTDIR structure (see [misc/texmf.cnf](misc/texmf.cnf)):
+Here's an example of `gitinfo-lua`s structure, which is compatible with the thinner TDS variant:
 ```
 gitinfo-lua
 ├── doc
@@ -68,4 +68,4 @@ gitinfo-lua
 ```
 The main difference of this approach is that Lua files don't have to be placed in under `scripts/lua`, but can directly be placed under `scripts` instead.
 This also counts for TeX files. For example, `gitinfo-lua.sty` won't have to be placed in either one of the following subdirectories: `luahblatex`, `luahbtex`, `lualatex`, `latex`, `luatex` or `generic`.
-The TDS approach is cumbersome for package developers that like to test their software against alternative compilers, where TEXMFDOTDIR does not.
+However, when sources are compiler-dependent, the TDS layout should be used instead.
