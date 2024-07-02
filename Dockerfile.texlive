@@ -9,7 +9,7 @@ ENV TEXLIVE_INSTALL_NO_WELCOME 1
 
 # Install core packages
 RUN apt update -q && \
-    apt install -qy build-essential git curl wget zip perl-base libfontconfig1 fontconfig openjdk-8-jre fonts-liberation fonts-liberation2 lua5.3 lua-busted python3-pygments ghostscript-x && \
+    apt install -qy build-essential git curl wget zip perl-base libfontconfig1 fontconfig openjdk-8-jre fonts-liberation fonts-liberation2 lua5.3 lua-busted python3-pygments ghostscript-x imagemagick && \
     rm -rf /var/lib/apt/lists/*
 
 # Prepare installation directory
@@ -53,3 +53,6 @@ VOLUME /root/texmf
 VOLUME /build
 
 WORKDIR /build
+
+# Patch for convert cli (ImageMagick)
+RUN sed -i 's/\(<policy domain="coder" rights="\)[^"]*\(" pattern="[^"]*"\)/\1read\2/' /etc/ImageMagick-6/policy.xml

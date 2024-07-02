@@ -19,8 +19,6 @@ jobs:
     steps:
       - name: Check out this repository
         uses: actions/checkout@v4
-#        with:
-#          path: xdp-docker
       - name: Check out test package
         uses: actions/checkout@v4
         with:
