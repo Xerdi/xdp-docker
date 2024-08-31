@@ -7,6 +7,8 @@ on:
     paths:
       - 'Dockerfile.*'
       - 'misc/*'
+  schedule:
+    - cron: '0 0 * * 0'
 
 jobs:
   build:
