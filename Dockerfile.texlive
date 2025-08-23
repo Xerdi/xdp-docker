@@ -30,7 +30,11 @@ RUN rm -rf /texlive-setup
 
 RUN tlmgr update --all;
 
-COPY misc/texmf.cnf /usr/local/texlive/2024/
+COPY misc/texmf.cnf /tmp/texmf.cnf
+RUN set -eux; \
+    TEXMFROOT="$(kpsewhich --var-value=TEXMFROOT)"; \
+    : "${TEXMFROOT:?kpsewhich gave no TEXMFROOT}"; \
+    install -Dm644 /tmp/texmf.cnf "${TEXMFROOT}/texmf.cnf"
 
 WORKDIR /root
 
