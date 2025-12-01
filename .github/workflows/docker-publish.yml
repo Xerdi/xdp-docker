@@ -36,6 +36,8 @@ jobs:
         file: Dockerfile.texlive
         push: true
         tags: maclotsen/texlive:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
 
     - name: Build and push Docker image (with Google Fonts)
       uses: docker/build-push-action@v5
@@ -44,6 +46,8 @@ jobs:
         file: Dockerfile.google-fonts
         push: true
         tags: maclotsen/texlive:with-gf
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
 
   notify:
     needs: build
