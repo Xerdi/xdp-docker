@@ -1,18 +1,16 @@
 FROM maclotsen/texlive:latest
 
-# Download fonts
-RUN mkdir -p /google-fonts
-WORKDIR /google-fonts
-RUN wget https://github.com/google/fonts/archive/main.tar.gz
+WORKDIR /tmp/google-fonts
 
-# Install fonts
-RUN tar -xzvf main.tar.gz;
-RUN mv fonts-main /usr/share/fonts/
-RUN rm -r /google-fonts
-RUN fc-cache -fv
+# Download & install fonts
+RUN wget -q https://github.com/google/fonts/archive/main.tar.gz && \
+    tar -xzf main.tar.gz && \
+    mv fonts-main /usr/share/fonts && \
+    rm -rf /tmp/google-fonts
 
 # Reload the font db again
-RUN luaotfload-tool --update;
+RUN fc-cache -fv && \
+    luaotfload-tool --update
 
 # Restore to LaTeX context
 WORKDIR /build
