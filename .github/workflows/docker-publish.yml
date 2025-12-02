@@ -13,68 +13,94 @@ on:
 
 
 jobs:
-  build:
+  build-base:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-    - name: Login to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_TOKEN }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
 
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        file: Dockerfile.texlive
-        push: true
-        tags: maclotsen/texlive:latest
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+      - name: Build and push base image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.texlive
+          push: true
+          tags: maclotsen/texlive:latest
 
-    - name: Build and push Docker image (with Google Fonts)
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        file: Dockerfile.google-fonts
-        push: true
-        tags: maclotsen/texlive:with-gf
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+  build-google-fonts:
+    runs-on: ubuntu-latest
+    needs: build-base      # eerst base bouwen en pushen
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Build and push fonts image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.google-fonts
+          push: true
+          tags: maclotsen/texlive:with-gf
 
   notify:
-    needs: build
+    needs: [build-base, build-google-fonts]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Compose build status
         id: compose
         run: |
-          if [ "${{ needs.build.result }}" = "success" ]; then
-            echo "status=SUCCESS" >> $GITHUB_OUTPUT
-            body="Docker images built and pushed successfully.\n\nImages:\n- maclotsen/texlive:latest\n- maclotsen/texlive:with-gf\n\nWorkflow: ${{ github.workflow }}\nRun ID: ${{ github.run_id }}\nRun Number: ${{ github.run_number }}\nRepository: ${{ github.repository }}\nBranch/Ref: ${{ github.ref }}\nCommit: ${{ github.sha }}\nActor: ${{ github.actor }}"
-          else
-            echo "status=FAILURE" >> $GITHUB_OUTPUT
-            body="Docker image build or push failed.\n\nPlease check the workflow run logs for details.\n\nIntended images:\n- maclotsen/texlive:latest\n- maclotsen/texlive:with-gf\n\nWorkflow: ${{ github.workflow }}\nRun ID: ${{ github.run_id }}\nRun Number: ${{ github.run_number }}\nRepository: ${{ github.repository }}\nBranch/Ref: ${{ github.ref }}\nCommit: ${{ github.sha }}\nActor: ${{ github.actor }}"
+          status_base="${{ needs.build-base.result }}"
+          status_gf="${{ needs.build-google-fonts.result }}"
+
+          overall="SUCCESS"
+          if [ "$status_base" != "success" ] || [ "$status_gf" != "success" ]; then
+            overall="FAILURE"
           fi
-          {
-            echo "body<<EOF"
-            echo "$body"
-            echo "EOF"
-          } >> $GITHUB_OUTPUT
+
+          cat <<EOF >> "$GITHUB_OUTPUT"
+          status=$overall
+          body<<MESSAGE
+          Docker image build summary
+
+          Base image (maclotsen/texlive:latest): $status_base
+          Google Fonts image (maclotsen/texlive:with-gf): $status_gf
+
+          Workflow: ${{ github.workflow }}
+          Run ID: ${{ github.run_id }}
+          Run Number: ${{ github.run_number }}
+          Repository: ${{ github.repository }}
+          Branch/Ref: ${{ github.ref }}
+          Commit: ${{ github.sha }}
+          Actor: ${{ github.actor }}
+          MESSAGE
+          EOF
 
       - name: Add job summary
         run: |
-          echo "## Docker Image Build Status: ${{ steps.compose.outputs.status }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.compose.outputs.body }}" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## Docker Image Build Status: ${{ steps.compose.outputs.status }}";
+            echo;
+            echo "${{ steps.compose.outputs.body }}";
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Send status email
         continue-on-error: true
@@ -89,3 +115,4 @@ jobs:
           from: ${{ secrets.EMAIL_FROM }}
           content_type: text/plain
           body: ${{ steps.compose.outputs.body }}
+
