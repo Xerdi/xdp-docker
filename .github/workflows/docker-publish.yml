@@ -18,7 +18,7 @@ on:
 
 jobs:
   build-base:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, ai-lab, docker, ctan-local, image-builder]
     env:
       # Default to the internal Xerdi mirror; manual dispatch can override.
       TL_REPOSITORY: ${{ inputs.tl_repository || 'http://ctan.xerdi.com/texlive/tlnet' }}
