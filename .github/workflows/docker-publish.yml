@@ -10,11 +10,19 @@ on:
   schedule:
     - cron: '0 0 * * 0'
   workflow_dispatch:
-
+    inputs:
+      tl_repository:
+        description: 'TeX Live tlnet repository URL (override to e.g. https://mirror.ctan.org/systems/texlive/tlnet)'
+        required: false
+        default: 'http://ctan.xerdi.com/texlive/tlnet'
 
 jobs:
   build-base:
     runs-on: ubuntu-latest
+    env:
+      # Default to the internal Xerdi mirror; manual dispatch can override.
+      TL_REPOSITORY: ${{ inputs.tl_repository || 'http://ctan.xerdi.com/texlive/tlnet' }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -35,6 +43,8 @@ jobs:
           file: Dockerfile.texlive
           push: true
           tags: maclotsen/texlive:latest
+          build-args: |
+            TL_REPOSITORY=${{ env.TL_REPOSITORY }}
 
   build-google-fonts:
     runs-on: ubuntu-latest
@@ -115,4 +125,3 @@ jobs:
           from: ${{ secrets.EMAIL_FROM }}
           content_type: text/plain
           body: ${{ steps.compose.outputs.body }}
-

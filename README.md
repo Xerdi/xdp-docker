@@ -17,6 +17,57 @@ To use one of the Docker images, Docker needs to be installed.
 Check the [installation instructions](https://docs.docker.com/engine/install/) to install Docker.
 Once you run Docker with an image specified, the image will get downloaded.
 
+## Internal TeX Live mirror
+
+**Host:** `ctan.xerdi.com`
+
+**Repository URL:** `http://ctan.xerdi.com/texlive/tlnet`
+
+**Purpose:** Private TeX Live tlnet mirror for XDP Docker builds and AI Lab builds. It removes the dependency on external CTAN mirror selection so dev / ai-lab / xdp-docker builds stay reproducible.
+
+**Consumers:** `dev`, `ai-lab`, `xdp-docker`.
+
+### Usage (default — internal mirror)
+
+`make texlive` and the `docker-publish` workflow already point at the internal mirror. Building directly with `docker build` also defaults to it:
+
+```bash
+docker build \
+  -f Dockerfile.texlive \
+  --build-arg TL_REPOSITORY=http://ctan.xerdi.com/texlive/tlnet \
+  -t xdp-docker:latest .
+```
+
+### External fallback
+
+To bypass the internal mirror and fall back to public CTAN mirror selection:
+
+```bash
+docker build \
+  -f Dockerfile.texlive \
+  --build-arg TL_REPOSITORY=https://mirror.ctan.org/systems/texlive/tlnet \
+  -t xdp-docker:external-ctan .
+```
+
+The same override works for `make`:
+
+```bash
+make texlive TL_REPOSITORY=https://mirror.ctan.org/systems/texlive/tlnet
+```
+
+The `TL_REPOSITORY` value is used for both the `install-tl-unx.tar.gz` bootstrap download and `install-tl -repository`, and is pinned via `tlmgr option repository` so subsequent `tlmgr update --all` stays on the same mirror.
+
+### Troubleshooting
+
+Check mirror availability from the build host:
+
+```bash
+curl -I http://ctan.xerdi.com/texlive/tlnet/install-tl-unx.tar.gz
+curl -I http://ctan.xerdi.com/texlive/tlnet/tlpkg/texlive.tlpdb
+```
+
+If these fail, check DNS, routing, firewall, nginx, and the mirror sync service on `ctan.xerdi.com`. If the host is unreachable from your network, use the external fallback above.
+
 ## Usage
 The following example would be applicable for most situations:
 ```bash

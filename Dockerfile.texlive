@@ -1,6 +1,10 @@
 FROM ubuntu:latest
 LABEL maintainer="Erik Nijenhuis <info@xerdi.com>"
 ARG profile=texlive.profile
+# Default to the internal Xerdi TeX Live tlnet mirror; override with
+#   --build-arg TL_REPOSITORY=https://mirror.ctan.org/systems/texlive/tlnet
+# to fall back to the public CTAN mirror selector.
+ARG TL_REPOSITORY=http://ctan.xerdi.com/texlive/tlnet
 
 ENV HOME=/root
 ENV TEXLIVE_INSTALL_ENV_NOCHECK=1
@@ -16,19 +20,23 @@ RUN apt update -q && \
 RUN mkdir -p /texlive-setup/install-tl
 WORKDIR /texlive-setup
 
-# Download TeX Live
-RUN wget https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz;
+# Download TeX Live installer from the selected tlnet mirror
+RUN wget "${TL_REPOSITORY}/install-tl-unx.tar.gz";
 
-# Install TeX Live
+# Install TeX Live against the selected tlnet mirror
 RUN tar -xvf install-tl-unx.tar.gz -C ./install-tl --strip-components=1;
 COPY misc/$profile /texlive-setup/texlive.profile
 WORKDIR /texlive-setup/install-tl
-RUN ./install-tl --profile=/texlive-setup/texlive.profile
+RUN ./install-tl \
+        -repository "${TL_REPOSITORY}" \
+        --profile=/texlive-setup/texlive.profile
 
 # Cleanup
 RUN rm -rf /texlive-setup
 
-RUN tlmgr update --all;
+# Pin the same mirror for subsequent tlmgr operations, then update.
+RUN tlmgr option repository "${TL_REPOSITORY}"; \
+    tlmgr update --all;
 
 COPY misc/texmf.cnf /tmp/texmf.cnf
 RUN set -eux; \
@@ -58,5 +66,7 @@ VOLUME /build
 
 WORKDIR /build
 
-# Patch for convert cli (ImageMagick)
-RUN sed -i 's/\(<policy domain="coder" rights="\)[^"]*\(" pattern="[^"]*"\)/\1read\2/' /etc/ImageMagick-6/policy.xml
+# Patch for convert cli (ImageMagick) — only when ImageMagick-6 is installed
+RUN if [ -f /etc/ImageMagick-6/policy.xml ]; then \
+        sed -i 's/\(<policy domain="coder" rights="\)[^"]*\(" pattern="[^"]*"\)/\1read\2/' /etc/ImageMagick-6/policy.xml; \
+    fi
