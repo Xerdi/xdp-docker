@@ -1,0 +1,70 @@
+# syntax=docker/dockerfile:1.7
+
+FROM debian:trixie-slim AS base
+
+ARG TEXLIVE_YEAR=2026
+ARG TEXLIVE_ARCH=x86_64-linux
+
+ENV TEXLIVE_INSTALL_PREFIX=/usr/local/texlive
+ENV PATH="/usr/local/texlive/${TEXLIVE_YEAR}/bin/${TEXLIVE_ARCH}:${PATH}"
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      ca-certificates \
+      perl \
+      fontconfig \
+      xz-utils \
+      tar \
+      gzip \
+      make \
+      ghostscript \
+      git \
+      default-jre-headless \
+      fonts-liberation \
+ && rm -rf /var/lib/apt/lists/*
+
+COPY misc/texlive-minimal.profile /tmp/texlive.profile
+COPY misc/texmf.cnf /tmp/texmf.cnf
+COPY misc/post-install.sh /usr/local/sbin/tl-post-install.sh
+COPY misc/fonts/ /usr/local/share/fonts/
+RUN chmod 0755 /usr/local/sbin/tl-post-install.sh
+
+FROM base AS local-mirror
+
+ARG TLNET_REV
+
+RUN --mount=type=bind,from=tlnet,source=.,target=/mnt/tlnet,readonly \
+    echo "TLNET_REV=${TLNET_REV}" \
+ && test -x /mnt/tlnet/install-tl \
+ && test -f /mnt/tlnet/tlpkg/texlive.tlpdb \
+ && test -d /mnt/tlnet/archive \
+ && /mnt/tlnet/install-tl \
+      -profile /tmp/texlive.profile \
+      -repository /mnt/tlnet \
+ && /usr/local/sbin/tl-post-install.sh
+
+WORKDIR /build
+VOLUME ["/build"]
+
+FROM base AS http
+
+ARG TLNET_REV
+ARG TL_REPOSITORY=http://ctan.xerdi.com/texlive/tlnet
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends curl \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN echo "TLNET_REV=${TLNET_REV}" \
+ && echo "TL_REPOSITORY=${TL_REPOSITORY}" \
+ && mkdir -p /tmp/install-tl \
+ && curl -fsSL "${TL_REPOSITORY}/install-tl-unx.tar.gz" \
+    | tar -xz -C /tmp/install-tl --strip-components=1 \
+ && /tmp/install-tl/install-tl \
+      -profile /tmp/texlive.profile \
+      -repository "${TL_REPOSITORY}" \
+ && rm -rf /tmp/install-tl \
+ && /usr/local/sbin/tl-post-install.sh
+
+WORKDIR /build
+VOLUME ["/build"]
