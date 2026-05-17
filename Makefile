@@ -1,10 +1,10 @@
 PROFILE = texlive.profile
 # Internal Xerdi TeX Live tlnet mirror — override on the command line, e.g.
-#   make texlive TL_REPOSITORY=https://mirror.ctan.org/systems/texlive/tlnet
+#   make build-base TL_REPOSITORY=https://mirror.ctan.org/systems/texlive/tlnet
 TL_REPOSITORY ?= http://ctan.xerdi.com/texlive/tlnet
 
 # Minimal image settings.  Override on the command line as needed, e.g.
-#   make minimal TLNET_DIR=/srv/ctan/texlive/tlnet TL_MINIMAL_IMAGE=local/tl:dev
+#   make build-minimal TLNET_DIR=/srv/ctan/texlive/tlnet TL_MINIMAL_IMAGE=local/tl:dev
 TL_MINIMAL_IMAGE ?= maclotsen/texlive:minimal
 TLNET_DIR        ?= /srv/mirrors/texlive/current
 
@@ -35,7 +35,10 @@ $(RIGHTEOUS_DIR)/OFL.txt: | $(RIGHTEOUS_DIR)
 	@curl -fsSL "$(RIGHTEOUS_URL)/OFL.txt" -o $@
 	@echo "Fetched $@"
 
-texlive: Dockerfile.texlive misc/texlive.profile
+.PHONY: build-base build-google-fonts \
+        build-minimal build-minimal-local-mirror build-minimal-http
+
+build-base: Dockerfile.texlive misc/texlive.profile
 	@docker build \
 		-f Dockerfile.texlive \
 		--build-arg profile=$(PROFILE) \
@@ -43,21 +46,24 @@ texlive: Dockerfile.texlive misc/texlive.profile
 		-t maclotsen/texlive:latest .
 	notify-send 'Makefile' 'Docker finished building TeX Live Latest' || true
 
+build-google-fonts: build-base Dockerfile.google-fonts
+	@docker build -f Dockerfile.google-fonts -t maclotsen/texlive:with-gf .
+	notify-send 'Makefile' 'Docker finished building Google Fonts' || true
+
 # Auto-select the build source for the minimal image: if the local TLNET
 # mirror directory is present on this host, build from it (fast, offline);
 # otherwise fall back to the HTTP mirror at $(TL_REPOSITORY).
 ifneq ($(wildcard $(TLNET_DIR)/install-tl),)
-MINIMAL_BACKEND := minimal-local-mirror
-$(info minimal: using local TLNET mirror at $(TLNET_DIR))
+MINIMAL_BACKEND := build-minimal-local-mirror
+$(info build-minimal: using local TLNET mirror at $(TLNET_DIR))
 else
-MINIMAL_BACKEND := minimal-http
-$(info minimal: $(TLNET_DIR) not found, falling back to HTTP repository $(TL_REPOSITORY))
+MINIMAL_BACKEND := build-minimal-http
+$(info build-minimal: $(TLNET_DIR) not found, falling back to HTTP repository $(TL_REPOSITORY))
 endif
 
-.PHONY: minimal minimal-local-mirror minimal-http
-minimal: $(MINIMAL_BACKEND)
+build-minimal: $(MINIMAL_BACKEND)
 
-minimal-local-mirror: Dockerfile.texlive-minimal misc/texlive-minimal.profile | $(RIGHTEOUS_DIR)/Righteous-Regular.ttf $(RIGHTEOUS_DIR)/OFL.txt
+build-minimal-local-mirror: Dockerfile.texlive-minimal misc/texlive-minimal.profile | $(RIGHTEOUS_DIR)/Righteous-Regular.ttf $(RIGHTEOUS_DIR)/OFL.txt
 	@TLNET_REV="$$( $(local_tlnet_rev) )"; \
 	echo "Building $(TL_MINIMAL_IMAGE) from local TLNET mirror: $(TLNET_DIR)"; \
 	echo "TLNET_REV=$$TLNET_REV"; \
@@ -70,7 +76,7 @@ minimal-local-mirror: Dockerfile.texlive-minimal misc/texlive-minimal.profile | 
 		.
 	notify-send 'Makefile' 'Docker finished building TeX Live minimal' || true
 
-minimal-http: Dockerfile.texlive-minimal misc/texlive-minimal.profile | $(RIGHTEOUS_DIR)/Righteous-Regular.ttf $(RIGHTEOUS_DIR)/OFL.txt
+build-minimal-http: Dockerfile.texlive-minimal misc/texlive-minimal.profile | $(RIGHTEOUS_DIR)/Righteous-Regular.ttf $(RIGHTEOUS_DIR)/OFL.txt
 	@TLNET_REV="$$(printf '%s' "$(TL_REPOSITORY)" | sha256sum | awk '{print $$1}')"; \
 	echo "Building $(TL_MINIMAL_IMAGE) from HTTP repository: $(TL_REPOSITORY)"; \
 	echo "TLNET_REV=$$TLNET_REV"; \
@@ -82,18 +88,3 @@ minimal-http: Dockerfile.texlive-minimal misc/texlive-minimal.profile | $(RIGHTE
 		-t $(TL_MINIMAL_IMAGE) \
 		.
 	notify-send 'Makefile' 'Docker finished building TeX Live minimal' || true
-
-with_gf: texlive Dockerfile.google-fonts
-	@docker build -f Dockerfile.google-fonts -t maclotsen/texlive:with-gf .
-	notify-send 'Makefile' 'Docker finished building Google Fonts' || true
-
-tl_2022:
-	@docker build -f Dockerfile.tl-2022 \
-		--build-arg TL_REPOSITORY=$(TL_REPOSITORY) \
-		-t maclotsen/texlive:2022 .
-	notify-send 'Makefile' 'Docker finished building TL 2022' || true
-
-publish: texlive with_gf tl_2022
-	@docker push maclotsen/texlive:latest
-	@docker push maclotsen/texlive:with-gf
-	@docker push maclotsen/texlive:2022
