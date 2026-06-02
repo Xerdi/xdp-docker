@@ -12,4 +12,6 @@ collection-plaingeneric 1
 collection-binextra 1
 collection-bibtexextra 1
 
+collection-langeuropean 1
+
 instopt_adjustpath 1
