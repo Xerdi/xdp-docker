@@ -2,6 +2,7 @@
 set -eu
 
 TEXMFROOT="$(kpsewhich -var-value=TEXMFROOT)"
+mkdir -p "${TEXMFROOT}/web2c/"
 cp /tmp/texmf.cnf "${TEXMFROOT}/web2c/texmf.cnf"
 mktexlsr
 
